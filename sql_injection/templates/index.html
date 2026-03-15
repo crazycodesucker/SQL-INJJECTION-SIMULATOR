@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL INJECTION</title>
+</head>
+<body>
+<h1>LOG IN TO ACCESS YOUR SBI BANK ACCOUNT</h1>
+
+    <form action="/login.html" method="post">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required><br><br>
+        <label for="password">Password:</label>
+        <input type="text" id="password" name="password" required><br><br>
+        <input type="submit" value="Login">
+        <label for="protection">WITH PROTECTION</label>
+        <input type="checkbox" name="protection">
+    </form>
+
+
+{% if error %}
+<script>
+    alert("{{ error }}");
+</script>
+{% endif %}
+
+
+
+
+<p> the valid username and passwords are admin & 1234, test & test1</p>
+<p> to check the sql injection vulnerbility use this if you want to login as admin { admin' -- and for password anything works and also make sure to turn off the protection button } </p>
+<p> if you don't know username then use this { ' OR 1=1 -- and password anything }</p>
+
+</body>
+</html>
