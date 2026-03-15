@@ -3,11 +3,664 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>SBI Bank — My Account</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --navy:   #0b1f3a;
+            --navy2:  #0f2a4e;
+            --gold:   #c9a84c;
+            --gold2:  #e8c97a;
+            --cream:  #f5f0e8;
+            --muted:  #8a9bb0;
+            --border: rgba(201,168,76,0.22);
+            --card:   rgba(255,255,255,0.04);
+            --green:  #3ecf8e;
+            --red:    #f66;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--navy);
+            background-image:
+                radial-gradient(ellipse 80% 50% at 50% -5%, rgba(201,168,76,0.07) 0%, transparent 65%),
+                repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.013) 40px),
+                repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.013) 40px);
+            font-family: 'DM Sans', sans-serif;
+            color: var(--cream);
+        }
+
+        /* ── TOPBAR ── */
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 40px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(11,31,58,0.85);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .bank-emblem {
+            width: 40px; height: 40px;
+            border: 1.5px solid var(--gold);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(201,168,76,0.07);
+        }
+        .bank-emblem svg { width: 20px; height: 20px; }
+        .bank-name h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--cream);
+            letter-spacing: 0.04em;
+            line-height: 1;
+        }
+        .bank-name span {
+            font-size: 10px;
+            color: var(--gold);
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .welcome-text {
+            font-size: 12px;
+            color: var(--muted);
+            letter-spacing: 0.05em;
+        }
+        .welcome-text strong {
+            color: var(--cream);
+            font-weight: 500;
+        }
+        .logout-btn {
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--gold);
+            border: 1px solid var(--border);
+            background: transparent;
+            padding: 7px 16px;
+            border-radius: 3px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.2s, color 0.2s;
+        }
+        .logout-btn:hover {
+            background: rgba(201,168,76,0.1);
+        }
+
+        /* ── MAIN LAYOUT ── */
+        .main {
+            max-width: 1060px;
+            margin: 0 auto;
+            padding: 40px 24px 60px;
+        }
+
+        .page-greeting {
+            margin-bottom: 32px;
+        }
+        .page-greeting h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 30px;
+            font-weight: 500;
+            color: var(--cream);
+            margin-bottom: 4px;
+        }
+        .page-greeting p {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        /* ── BALANCE CARD ── */
+        .balance-card {
+            background: linear-gradient(135deg, #0f2a4e 0%, #0b1f3a 60%, #0d2340 100%);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 36px 40px;
+            margin-bottom: 28px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 80px rgba(201,168,76,0.04);
+        }
+        .balance-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+        .balance-card::after {
+            content: '';
+            position: absolute;
+            right: -60px; top: -60px;
+            width: 240px; height: 240px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(201,168,76,0.07) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .balance-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .account-meta p {
+            font-size: 11px;
+            color: var(--muted);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        .account-meta h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 20px;
+            font-weight: 500;
+            color: var(--cream);
+        }
+        .account-type-badge {
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--navy);
+            background: var(--gold);
+            padding: 3px 10px;
+            border-radius: 20px;
+        }
+        .balance-amount-block p {
+            font-size: 11px;
+            color: var(--muted);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            text-align: right;
+        }
+        .balance-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            justify-content: flex-end;
+        }
+        .balance-value {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 38px;
+            font-weight: 600;
+            color: var(--cream);
+            letter-spacing: 0.02em;
+            line-height: 1;
+            transition: filter 0.3s;
+        }
+        .balance-value.hidden {
+            filter: blur(10px);
+            user-select: none;
+        }
+        .toggle-btn {
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 4px;
+            padding: 8px 10px;
+            cursor: pointer;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s, color 0.2s, border-color 0.2s;
+            flex-shrink: 0;
+        }
+        .toggle-btn:hover {
+            background: rgba(201,168,76,0.1);
+            color: var(--gold);
+            border-color: var(--border);
+        }
+
+        .balance-bottom {
+            display: flex;
+            gap: 36px;
+            flex-wrap: wrap;
+        }
+        .stat-item p {
+            font-size: 10px;
+            color: var(--muted);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+        .stat-item span {
+            font-size: 14px;
+            color: var(--cream);
+            font-weight: 400;
+        }
+        .stat-item .positive { color: var(--green); }
+        .account-no {
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            letter-spacing: 0.12em;
+        }
+
+        /* ── QUICK ACTIONS ── */
+        .section-label {
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 16px;
+        }
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 32px;
+        }
+        .action-tile {
+            background: var(--card);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 5px;
+            padding: 22px 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s, transform 0.15s;
+            text-align: center;
+        }
+        .action-tile:hover {
+            border-color: var(--border);
+            background: rgba(201,168,76,0.05);
+            transform: translateY(-2px);
+        }
+        .action-icon {
+            width: 42px; height: 42px;
+            border-radius: 50%;
+            background: rgba(201,168,76,0.1);
+            border: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--gold);
+        }
+        .action-tile p {
+            font-size: 12px;
+            color: var(--muted);
+            font-weight: 400;
+            line-height: 1.3;
+        }
+
+        /* ── BOTTOM GRID ── */
+        .bottom-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .panel {
+            background: var(--card);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 5px;
+            padding: 28px;
+        }
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 22px;
+        }
+        .panel-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 17px;
+            font-weight: 500;
+            color: var(--cream);
+        }
+        .view-all {
+            font-size: 11px;
+            color: var(--gold);
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            text-decoration: none;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+        .view-all:hover { opacity: 1; }
+
+        /* Transactions */
+        .txn-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .txn-item:last-child { border-bottom: none; }
+        .txn-left {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+        }
+        .txn-dot {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px;
+            flex-shrink: 0;
+        }
+        .txn-dot.debit  { background: rgba(255,100,100,0.1); }
+        .txn-dot.credit { background: rgba(62,207,142,0.1); }
+        .txn-info p { font-size: 13px; color: var(--cream); margin-bottom: 2px; }
+        .txn-info span { font-size: 11px; color: var(--muted); }
+        .txn-amount { font-size: 14px; font-weight: 500; font-family: 'Cormorant Garamond', serif; }
+        .txn-amount.debit  { color: var(--red); }
+        .txn-amount.credit { color: var(--green); }
+
+        /* Card info panel */
+        .mini-card {
+            background: linear-gradient(135deg, #1a3a5c, #0b1f3a);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 22px;
+            margin-bottom: 18px;
+            position: relative;
+            overflow: hidden;
+        }
+        .mini-card::before {
+            content: '';
+            position: absolute;
+            right: -20px; bottom: -20px;
+            width: 100px; height: 100px;
+            border-radius: 50%;
+            border: 24px solid rgba(201,168,76,0.08);
+        }
+        .mini-card-label { font-size: 10px; color: var(--muted); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 14px; }
+        .mini-card-number { font-family: 'Courier New', monospace; font-size: 15px; color: var(--cream); letter-spacing: 0.22em; margin-bottom: 16px; }
+        .mini-card-bottom { display: flex; justify-content: space-between; align-items: flex-end; }
+        .mini-card-bottom-field p { font-size: 9px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 3px; }
+        .mini-card-bottom-field span { font-size: 13px; color: var(--cream); }
+        .chip {
+            width: 30px; height: 22px;
+            background: linear-gradient(135deg, #c9a84c, #e8c97a);
+            border-radius: 4px;
+            margin-bottom: 14px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 13px;
+        }
+        .info-row:last-child { border-bottom: none; }
+        .info-row span:first-child { color: var(--muted); }
+        .info-row span:last-child  { color: var(--cream); }
+
+        /* ── FOOTER ── */
+        .footer {
+            text-align: center;
+            font-size: 11px;
+            color: rgba(138,155,176,0.3);
+            letter-spacing: 0.06em;
+            margin-top: 48px;
+        }
+
+        @media (max-width: 700px) {
+            .topbar { padding: 14px 20px; }
+            .main { padding: 24px 16px 48px; }
+            .quick-actions { grid-template-columns: repeat(2, 1fr); }
+            .bottom-grid { grid-template-columns: 1fr; }
+            .balance-value { font-size: 28px; }
+        }
+    </style>
 </head>
 <body>
-    <h1> WELCOME TO SBI BANK</h1>
-    <h1> HEY YOU LOGGED IN SUCCESSFUL</h1>
+
+    <!-- Topbar -->
+    <nav class="topbar">
+        <div class="topbar-left">
+            <div class="bank-emblem">
+                <svg viewBox="0 0 28 28" fill="none">
+                    <polygon points="14,2 26,9 26,10 2,10 2,9" fill="#c9a84c"/>
+                    <rect x="4" y="12" width="3" height="10" fill="#c9a84c"/>
+                    <rect x="9" y="12" width="3" height="10" fill="#c9a84c"/>
+                    <rect x="14" y="12" width="3" height="10" fill="#c9a84c"/>
+                    <rect x="19" y="12" width="3" height="10" fill="#c9a84c"/>
+                    <rect x="2" y="24" width="24" height="2" fill="#c9a84c"/>
+                </svg>
+            </div>
+            <div class="bank-name">
+                <h1>State Bank of India</h1>
+                <span>Internet Banking</span>
+            </div>
+        </div>
+        <div class="topbar-right">
+            <p class="welcome-text">Hello, <strong>Admin</strong></p>
+            <a href="/index.html" class="logout-btn">Sign Out</a>
+        </div>
+    </nav>
+
+    <!-- Main -->
+    <div class="main">
+
+        <div class="page-greeting">
+            <h2>Good Morning, Admin</h2>
+            <p>Last login: Today at 09:42 AM &nbsp;·&nbsp; Bengaluru, KA</p>
+        </div>
+
+        <!-- Balance Card -->
+        <div class="balance-card">
+            <div class="balance-top">
+                <div class="account-meta">
+                    <p>Savings Account</p>
+                    <h3>Admin Kumar</h3>
+                    <br>
+                    <span class="account-type-badge">SBI Classic Saver</span>
+                </div>
+                <div class="balance-amount-block">
+                    <p>Available Balance</p>
+                    <div class="balance-row">
+                        <span class="balance-value hidden" id="balance">₹ 2,84,750.00</span>
+                        <button class="toggle-btn" id="toggleBtn" onclick="toggleBalance()" title="Show / Hide Balance">
+                            <!-- Eye icon (shown when balance is hidden) -->
+                            <svg id="iconShow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                            <!-- Eye-off icon (shown when balance is visible) -->
+                            <svg id="iconHide" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+                                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                                <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                                <line x1="1" y1="1" x2="23" y2="23"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="balance-bottom">
+                <div class="stat-item">
+                    <p>Account Number</p>
+                    <span class="account-no">3847 •••• •••• 1192</span>
+                </div>
+                <div class="stat-item">
+                    <p>IFSC Code</p>
+                    <span>SBIN0001234</span>
+                </div>
+                <div class="stat-item">
+                    <p>This Month</p>
+                    <span class="positive">+₹ 42,000.00</span>
+                </div>
+                <div class="stat-item">
+                    <p>Account Status</p>
+                    <span class="positive">● Active</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <p class="section-label">Quick Actions</p>
+        <div class="quick-actions">
+            <div class="action-tile">
+                <div class="action-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                </div>
+                <p>Fund Transfer</p>
+            </div>
+            <div class="action-tile">
+                <div class="action-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
+                    </svg>
+                </div>
+                <p>Pay Bills</p>
+            </div>
+            <div class="action-tile">
+                <div class="action-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+                    </svg>
+                </div>
+                <p>Statements</p>
+            </div>
+            <div class="action-tile">
+                <div class="action-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/>
+                    </svg>
+                </div>
+                <p>Transaction History</p>
+            </div>
+        </div>
+
+        <!-- Bottom Grid -->
+        <div class="bottom-grid">
+
+            <!-- Recent Transactions -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title">Recent Transactions</span>
+                    <a class="view-all">View All →</a>
+                </div>
+                <div class="txn-item">
+                    <div class="txn-left">
+                        <div class="txn-dot debit">↑</div>
+                        <div class="txn-info">
+                            <p>Amazon India</p>
+                            <span>Mar 14, 2025 · UPI</span>
+                        </div>
+                    </div>
+                    <span class="txn-amount debit">− ₹3,499</span>
+                </div>
+                <div class="txn-item">
+                    <div class="txn-left">
+                        <div class="txn-dot credit">↓</div>
+                        <div class="txn-info">
+                            <p>Salary Credit</p>
+                            <span>Mar 10, 2025 · NEFT</span>
+                        </div>
+                    </div>
+                    <span class="txn-amount credit">+ ₹42,000</span>
+                </div>
+                <div class="txn-item">
+                    <div class="txn-left">
+                        <div class="txn-dot debit">↑</div>
+                        <div class="txn-info">
+                            <p>Swiggy</p>
+                            <span>Mar 9, 2025 · UPI</span>
+                        </div>
+                    </div>
+                    <span class="txn-amount debit">− ₹ 640</span>
+                </div>
+                <div class="txn-item">
+                    <div class="txn-left">
+                        <div class="txn-dot debit">↑</div>
+                        <div class="txn-info">
+                            <p>Electricity Bill</p>
+                            <span>Mar 5, 2025 · Bharat BillPay</span>
+                        </div>
+                    </div>
+                    <span class="txn-amount debit">− ₹1,210</span>
+                </div>
+                <div class="txn-item">
+                    <div class="txn-left">
+                        <div class="txn-dot credit">↓</div>
+                        <div class="txn-info">
+                            <p>Refund — Flipkart</p>
+                            <span>Mar 3, 2025 · IMPS</span>
+                        </div>
+                    </div>
+                    <span class="txn-amount credit">+ ₹ 899</span>
+                </div>
+            </div>
+
+            <!-- Account & Card -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title">Linked Debit Card</span>
+                    <a class="view-all">Manage →</a>
+                </div>
+                <div class="mini-card">
+                    <p class="mini-card-label">SBI Classic Debit</p>
+                    <div class="chip"></div>
+                    <p class="mini-card-number">4716 •••• •••• 3821</p>
+                    <div class="mini-card-bottom">
+                        <div class="mini-card-bottom-field">
+                            <p>Card Holder</p>
+                            <span>Admin Kumar</span>
+                        </div>
+                        <div class="mini-card-bottom-field" style="text-align:right">
+                            <p>Expires</p>
+                            <span>08 / 28</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-row">
+                    <span>Branch</span>
+                    <span>Bengaluru — MG Road</span>
+                </div>
+                <div class="info-row">
+                    <span>Customer ID</span>
+                    <span>78432910</span>
+                </div>
+                <div class="info-row">
+                    <span>Nominee</span>
+                    <span>Priya Kumar</span>
+                </div>
+                <div class="info-row">
+                    <span>Interest Rate</span>
+                    <span>2.70% p.a.</span>
+                </div>
+            </div>
+
+        </div>
+
+        <p class="footer">© 2025 State Bank of India &nbsp;·&nbsp; This is a demo environment &nbsp;·&nbsp; Unauthorized access is prohibited</p>
+
+    </div>
+
+    <script>
+        function toggleBalance() {
+            const bal = document.getElementById('balance');
+            const show = document.getElementById('iconShow');
+            const hide = document.getElementById('iconHide');
+            const isHidden = bal.classList.toggle('hidden');
+            show.style.display = isHidden ? 'block' : 'none';
+            hide.style.display = isHidden ? 'none' : 'block';
+        }
+    </script>
+
 </body>
 </html>
-

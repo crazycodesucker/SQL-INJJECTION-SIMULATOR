@@ -3,34 +3,376 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SQL INJECTION</title>
+    <title>SBI Bank — Secure Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --navy:   #0b1f3a;
+            --navy2:  #0f2a4e;
+            --gold:   #c9a84c;
+            --gold2:  #e8c97a;
+            --cream:  #f5f0e8;
+            --muted:  #8a9bb0;
+            --border: rgba(201,168,76,0.25);
+            --card:   rgba(255,255,255,0.04);
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--navy);
+            background-image:
+                radial-gradient(ellipse 80% 60% at 50% -10%, rgba(201,168,76,0.08) 0%, transparent 70%),
+                repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.015) 40px),
+                repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.015) 40px);
+            font-family: 'DM Sans', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 16px;
+        }
+
+        /* ── TOP HEADER BAR ── */
+        .bank-header {
+            width: 100%;
+            max-width: 480px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 32px;
+        }
+        .bank-emblem {
+            width: 52px; height: 52px;
+            border: 2px solid var(--gold);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            background: rgba(201,168,76,0.07);
+        }
+        .bank-emblem svg { width: 28px; height: 28px; }
+        .bank-name h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--cream);
+            letter-spacing: 0.04em;
+            line-height: 1.1;
+        }
+        .bank-name span {
+            font-size: 11px;
+            color: var(--gold);
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            font-weight: 300;
+        }
+
+        /* ── CARD ── */
+        .login-card {
+            width: 100%;
+            max-width: 480px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 48px 44px;
+            backdrop-filter: blur(12px);
+            box-shadow:
+                0 0 0 1px rgba(255,255,255,0.03),
+                0 32px 64px rgba(0,0,0,0.45),
+                0 0 80px rgba(201,168,76,0.04);
+            position: relative;
+            overflow: hidden;
+        }
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+
+        .card-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 26px;
+            font-weight: 500;
+            color: var(--cream);
+            letter-spacing: 0.02em;
+            margin-bottom: 6px;
+        }
+        .card-subtitle {
+            font-size: 12px;
+            color: var(--muted);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 36px;
+        }
+
+        /* ── FORM ── */
+        .field {
+            margin-bottom: 22px;
+        }
+        label {
+            display: block;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 8px;
+        }
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 3px;
+            padding: 13px 16px;
+            color: var(--cream);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(201,168,76,0.12);
+        }
+        input[type="text"]::placeholder,
+        input[type="password"]::placeholder {
+            color: rgba(138,155,176,0.5);
+        }
+
+        /* ── PROTECTION ROW ── */
+        .protection-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 28px;
+        }
+        .protection-row input[type="checkbox"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 16px; height: 16px;
+            border: 1px solid rgba(201,168,76,0.4);
+            border-radius: 2px;
+            background: rgba(255,255,255,0.04);
+            cursor: pointer;
+            position: relative;
+            flex-shrink: 0;
+            transition: background 0.15s;
+        }
+        .protection-row input[type="checkbox"]:checked {
+            background: var(--gold);
+        }
+        .protection-row input[type="checkbox"]:checked::after {
+            content: '';
+            position: absolute;
+            left: 4px; top: 1px;
+            width: 5px; height: 9px;
+            border: 2px solid var(--navy);
+            border-top: none; border-left: none;
+            transform: rotate(45deg);
+        }
+        .protection-row label {
+            margin: 0;
+            font-size: 12px;
+            letter-spacing: 0.06em;
+            color: var(--muted);
+            text-transform: none;
+            cursor: pointer;
+        }
+
+        /* ── SUBMIT ── */
+        input[type="submit"] {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 50%, var(--gold) 100%);
+            background-size: 200% auto;
+            border: none;
+            border-radius: 3px;
+            color: var(--navy);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background-position 0.4s, transform 0.1s, box-shadow 0.2s;
+            box-shadow: 0 4px 20px rgba(201,168,76,0.25);
+        }
+        input[type="submit"]:hover {
+            background-position: right center;
+            box-shadow: 0 6px 28px rgba(201,168,76,0.4);
+        }
+        input[type="submit"]:active { transform: scale(0.99); }
+
+        /* ── SECURITY BADGE ── */
+        .security-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            margin-top: 24px;
+            color: rgba(138,155,176,0.6);
+            font-size: 11px;
+            letter-spacing: 0.06em;
+        }
+        .security-badge svg { opacity: 0.5; }
+
+        /* ── EDUCATION BOX ── */
+        .edu-box {
+            width: 100%;
+            max-width: 480px;
+            margin-top: 24px;
+            border: 1px solid rgba(201,168,76,0.2);
+            border-left: 3px solid var(--gold);
+            border-radius: 0 4px 4px 0;
+            background: rgba(201,168,76,0.04);
+            padding: 22px 24px;
+        }
+        .edu-box-header {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            margin-bottom: 16px;
+        }
+        .edu-tag {
+            font-size: 9px;
+            font-weight: 500;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--navy);
+            background: var(--gold);
+            padding: 2px 8px;
+            border-radius: 2px;
+        }
+        .edu-box-header span {
+            font-size: 12px;
+            color: var(--muted);
+            letter-spacing: 0.05em;
+        }
+        .edu-item {
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .edu-item:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+        .edu-item p {
+            font-size: 12.5px;
+            color: var(--muted);
+            line-height: 1.65;
+        }
+        .edu-item code {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: var(--gold2);
+            background: rgba(201,168,76,0.08);
+            padding: 1px 6px;
+            border-radius: 2px;
+            border: 1px solid rgba(201,168,76,0.15);
+        }
+
+        /* ── FOOTER ── */
+        .footer {
+            margin-top: 28px;
+            font-size: 11px;
+            color: rgba(138,155,176,0.35);
+            letter-spacing: 0.06em;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
-<h1>LOG IN TO ACCESS YOUR SBI BANK ACCOUNT</h1>
 
-    <form action="/login.html" method="post">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required><br><br>
-        <label for="password">Password:</label>
-        <input type="text" id="password" name="password" required><br><br>
-        <input type="submit" value="Login">
-        <label for="protection">WITH PROTECTION</label>
-        <input type="checkbox" name="protection">
-    </form>
+    <!-- Bank header -->
+    <div class="bank-header">
+        <div class="bank-emblem">
+            <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <polygon points="14,2 26,9 26,10 2,10 2,9" fill="#c9a84c"/>
+                <rect x="4" y="12" width="3" height="10" fill="#c9a84c"/>
+                <rect x="9" y="12" width="3" height="10" fill="#c9a84c"/>
+                <rect x="14" y="12" width="3" height="10" fill="#c9a84c"/>
+                <rect x="19" y="12" width="3" height="10" fill="#c9a84c"/>
+                <rect x="2" y="24" width="24" height="2" fill="#c9a84c"/>
+            </svg>
+        </div>
+        <div class="bank-name">
+            <h1>State Bank of India</h1>
+            <span>Internet Banking Portal</span>
+        </div>
+    </div>
 
+    <!-- Login card -->
+    <div class="login-card">
+        <p class="card-title">Welcome Back</p>
+        <p class="card-subtitle">Sign in to your account</p>
 
-{% if error %}
-<script>
-    alert("{{ error }}");
-</script>
-{% endif %}
+        <form action="/login.html" method="post">
+            <div class="field">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" placeholder="Enter your username" required>
+            </div>
+            <div class="field">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            </div>
 
+            <div class="protection-row">
+                <input type="checkbox" id="protection" name="protection">
+                <label for="protection">Enable SQL Injection Protection</label>
+            </div>
 
+            <input type="submit" value="Sign In to Account">
+        </form>
 
+        <div class="security-badge">
+            <svg width="12" height="13" viewBox="0 0 12 13" fill="none">
+                <path d="M6 1L1 3.5V6.5C1 9.26 3.24 11.85 6 12.5C8.76 11.85 11 9.26 11 6.5V3.5L6 1Z" stroke="#8a9bb0" stroke-width="1.2"/>
+                <path d="M4 6.5L5.5 8L8 5" stroke="#8a9bb0" stroke-width="1.2" stroke-linecap="round"/>
+            </svg>
+            256-bit SSL Encrypted Connection
+        </div>
+    </div>
 
-<p> the valid username and passwords are admin & 1234, test & test1</p>
-<p> to check the sql injection vulnerbility use this if you want to login as admin { admin' -- and for password anything works and also make sure to turn off the protection button } </p>
-<p> if you don't know username then use this { ' OR 1=1 -- and password anything }</p>
+    <!-- Education box -->
+    <div class="edu-box">
+        <div class="edu-box-header">
+            <span class="edu-tag">Lab Guide</span>
+            <span>SQL Injection Demo</span>
+        </div>
+
+        <div class="edu-item">
+            <p>
+                Valid credentials &mdash;
+                Username: <code>admin</code> / Password: <code>1234</code> &nbsp;&nbsp;
+                Username: <code>test</code> / Password: <code>test1</code>
+            </p>
+        </div>
+
+        <div class="edu-item">
+            <p>
+                Login as <strong style="color:#e8c97a">admin</strong> without knowing the password &mdash;
+                Username: <code>admin' --</code>, any password. Make sure to <strong style="color:#e8c97a">disable protection</strong>.
+            </p>
+        </div>
+
+        <div class="edu-item">
+            <p>
+                Login without knowing any username &mdash;
+                Username: <code>' OR 1=1 --</code>, any password. Disable protection.
+            </p>
+        </div>
+    </div>
+
+    <p class="footer">© 2025 State Bank of India &nbsp;·&nbsp; Unauthorized access is prohibited</p>
+
+    {% if error %}
+    <script>
+        alert("{{ error }}");
+    </script>
+    {% endif %}
 
 </body>
 </html>
